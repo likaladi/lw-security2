@@ -1,16 +1,12 @@
 server:
-  port: 8081
+  port: 8082
 spring:
   application:
-    name: item-service
-  datasource:
-    driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/lyshop
-    username: root
-    password: likaladi
-    hikari:
-      maximum-pool-size: 30
-      minimum-idle: 10
+    name: upload-service
+  servlet:
+    multipart:
+      max-file-size: 5MB # 限制文件上传的大小
+# Eureka
 eureka:
   client:
     service-url:
@@ -21,3 +17,11 @@ eureka:
     prefer-ip-address: true
     ip-address: 127.0.0.1
     instance-id: ${spring.application.name}:${server.port}
+fdfs:
+  so-timeout: 1501
+  connect-timeout: 601
+  thumb-image: # 缩略图
+    width: 60
+    height: 60
+  tracker-list: # tracker地址
+    - 10.10.0.188:22122
