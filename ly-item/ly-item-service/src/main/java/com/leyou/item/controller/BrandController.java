@@ -6,6 +6,7 @@ import com.leyou.item.service.BrandService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -61,8 +62,11 @@ public class BrandController {
     @GetMapping("cid/{cid}")
     public ResponseEntity<List<Brand>> queryBrandByCategory(@PathVariable("cid") Long cid) {
         List<Brand> list = this.brandService.queryBrandByCategory(cid);
-        if(list == null){
-            new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        if(CollectionUtils.isEmpty(list)){
+            //响应404：
+            // ResponseEntity.badRequest().build();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return ResponseEntity.ok(list);
     }
