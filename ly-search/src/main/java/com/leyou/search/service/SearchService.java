@@ -17,6 +17,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -73,28 +75,28 @@ public class SearchService {
 
 
         // 处理规格参数
-        Map<String, Object> genericSpecs = mapper.readValue(spuDetail.getGenericSpec(), new TypeReference<Map<String, Object>>() {
-        });
-        Map<String, Object> specialSpecs = mapper.readValue(spuDetail.getSpecialSpec(), new TypeReference<Map<String, Object>>() {
-        });
+//        Map<String, Object> genericSpecs = mapper.readValue(spuDetail.getGenericSpec(), new TypeReference<Map<String, Object>>() {
+//        });
+//        Map<String, Object> specialSpecs = mapper.readValue(spuDetail.getSpecialSpec(), new TypeReference<Map<String, Object>>() {
+//        });
         // 获取可搜索的规格参数
         Map<String, Object> searchSpec = new HashMap<>();
 
         // 过滤规格模板，把所有可搜索的信息保存到Map中
         Map<String, Object> specMap = new HashMap<>();
-        params.forEach(p -> {
-            if (p.getSearching()) {
-                if (p.getGeneric()) {
-                    String value = genericSpecs.get(p.getCid().toString()).toString();
-                    if(p.getNumeric()){
-                        value = chooseSegment(value, p);
-                    }
-                    specMap.put(p.getFiledName(), StringUtils.isBlank(value) ? "其它" : value);
-                } else {
-                    specMap.put(p.getFiledName(), specialSpecs.get(p.getCid().toString()));
-                }
-            }
-        });
+//        params.forEach(p -> {
+//            if (p.getSearching()) {
+//                if (p.getGeneric()) {
+//                    String value = genericSpecs.get(p.getCid().toString()).toString();
+//                    if(p.getNumeric()){
+//                        value = chooseSegment(value, p);
+//                    }
+//                    specMap.put(p.getFiledName(), StringUtils.isBlank(value) ? "其它" : value);
+//                } else {
+//                    specMap.put(p.getFiledName(), specialSpecs.get(p.getCid().toString()));
+//                }
+//            }
+//        });
 
         goods.setId(spu.getId());
         goods.setSubTitle(spu.getSubTitle());
@@ -160,6 +162,7 @@ public class SearchService {
         int size = request.getSize();
         queryBuilder.withPageable(PageRequest.of(page - 1, size));
 
+        queryBuilder.withSort(SortBuilders.fieldSort("id").order(SortOrder.ASC));
         // 4、查询，获取结果
         Page<Goods> pageInfo = this.goodsRepository.search(queryBuilder.build());
 

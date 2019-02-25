@@ -9,7 +9,7 @@ import java.util.List;
 public class SpuBo extends Spu {
 
     @Transient
-      String cname;// 商品分类名称
+    String cname;// 商品分类名称
     @Transient
     String bname;// 品牌名称
     @Transient

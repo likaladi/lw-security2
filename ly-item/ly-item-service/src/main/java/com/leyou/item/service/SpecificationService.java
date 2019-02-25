@@ -30,17 +30,33 @@ public class SpecificationService<main> {
                JsonObject jsonObject = arr2.getAsJsonObject();
                boolean searchable = jsonObject.get("searchable").getAsBoolean();
                boolean global = jsonObject.get("global").getAsBoolean();
-               if(searching.equals(searchable) && generic.equals(global)){
-                   SpecParam specParam = new SpecParam();
-                   specParam.setCid(cid);
-                   specParam.setSearching(searchable);
-                   specParam.setGeneric(global);
-                   specParam.setFiledName(jsonObject.get("k").getAsString());
-                   datas.add(specParam);
+               if(searching != null && generic == null){
+                   if(searching.equals(searchable)){
+                       datas.add(getSpecParam(cid,searchable,global,jsonObject));
+                   }
+               }
+               if(generic != null && searching == null){
+                   if(generic.equals(global)){
+                       datas.add(getSpecParam(cid,searchable,global,jsonObject));
+                   }
+               }
+               if(searching != null && generic != null){
+                   if(searching.equals(searchable) && generic.equals(global)){
+                       datas.add(getSpecParam(cid,searchable,global,jsonObject));
+                   }
                }
            });
         });
         return datas;
+    }
+
+    private SpecParam getSpecParam(Long cid, boolean searchable, boolean global, JsonObject jsonObject){
+        SpecParam specParam = new SpecParam();
+        specParam.setCid(cid);
+        specParam.setSearching(searchable);
+        specParam.setGeneric(global);
+        specParam.setFiledName(jsonObject.get("k").getAsString());
+        return specParam;
     }
 
     public static void main(String[] args) {

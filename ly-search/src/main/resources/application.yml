@@ -1,6 +1,8 @@
 server:
   port: 8083
 spring:
+  jackson:  #过滤Controller返回JSON对象属性为空不显示
+    default-property-inclusion: non_null # 配置json处理时忽略空值
   main:
     allow-bean-definition-overriding: true #解决多个接口上的@FeignClient(“相同服务名”)会报错
   application:
@@ -8,7 +10,7 @@ spring:
   data:
     elasticsearch:
       cluster-name: elasticsearch
-      cluster-nodes: 192.168.0.186:9300
+      cluster-nodes: 192.168.11.188:9300
 eureka:
   client:
     service-url:

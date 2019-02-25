@@ -19,7 +19,7 @@ public class UploadController {
     private UploadService uploadService;
 
     /**
-     * 上传图片功能
+     * 上传图片功能3
      * @param file
      * @return
      */
