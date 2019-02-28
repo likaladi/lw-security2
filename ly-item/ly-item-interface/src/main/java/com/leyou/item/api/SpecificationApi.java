@@ -16,7 +16,7 @@ import java.util.List;
 @RequestMapping("/spec")
 public interface SpecificationApi {
     @GetMapping("/params")
-    ResponseEntity<List<SpecParam>> querySpecParam(
+    List<SpecParam> querySpecParam(
             @RequestParam(value="gid", required = false) Long gid,
             @RequestParam(value="cid", required = false) Long cid,
             @RequestParam(value="searching", required = false) Boolean searching,

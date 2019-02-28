@@ -2,6 +2,7 @@ package com.leyou.search.controller;
 
 import com.leyou.common.pojo.PageResult;
 import com.leyou.common.pojo.SearchRequest;
+import com.leyou.common.util.JsonUtil;
 import com.leyou.search.pojo.Goods;
 import com.leyou.search.service.SearchService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ public class SearchController {
         if (result == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        System.out.println("PageResult:"+JsonUtil.beanToJSONString(result));
         return ResponseEntity.ok(result);
     }
 }
