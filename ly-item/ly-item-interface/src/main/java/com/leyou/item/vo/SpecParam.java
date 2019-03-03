@@ -32,4 +32,9 @@ public class SpecParam {
      * 属性名称
      */
     private String filedName;
+
+    /**
+     *
+     */
+    private String options;
 }

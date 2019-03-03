@@ -1,11 +1,13 @@
 package com.leyou.item.service;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.leyou.item.mapper.SpecificationMapper;
 import com.leyou.item.pojo.Specification;
 import com.leyou.item.vo.SpecParam;
+import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +32,7 @@ public class SpecificationService<main> {
                JsonObject jsonObject = arr2.getAsJsonObject();
                boolean searchable = jsonObject.get("searchable").getAsBoolean();
                boolean global = jsonObject.get("global").getAsBoolean();
+
                if(searching != null && generic == null){
                    if(searching.equals(searchable)){
                        datas.add(getSpecParam(cid,searchable,global,jsonObject));
@@ -50,18 +53,35 @@ public class SpecificationService<main> {
         return datas;
     }
 
-    private SpecParam getSpecParam(Long cid, boolean searchable, boolean global, JsonObject jsonObject){
+
+
+    private SpecParam getSpecParam(Long cid, boolean searchable, boolean global,JsonObject jsonObject){
+        String options = jsonObject.get("options").toString();
         SpecParam specParam = new SpecParam();
         specParam.setCid(cid);
         specParam.setSearching(searchable);
         specParam.setGeneric(global);
         specParam.setFiledName(jsonObject.get("k").getAsString());
+        specParam.setOptions(options);
+        if(jsonObject.get("numerical") != null){
+            specParam.setNumeric(jsonObject.get("numerical").getAsBoolean());
+        }
+        if(jsonObject.get("unit") != null){
+            specParam.setUnit(jsonObject.get("unit").getAsString());
+        }
         return specParam;
     }
 
     public static void main(String[] args) {
-        String json = "[{\"username\":\"test\"},{\"username\":\"test2\"}]";
-        JsonArray arrs = new JsonParser().parse(json).getAsJsonArray();
-        System.out.println(arrs.size());
+        String options = "{\"options\":[\"10-20\",\"21-30\"]}";
+        String str = new JsonParser().parse(options).getAsJsonObject().get("options").toString();
+        JsonArray jsonArray =  new JsonParser().parse(str).getAsJsonArray();
+        for(JsonElement arr : jsonArray){
+            String temp = arr.getAsString();
+            System.out.println(temp);
+
+
+        }
+
     }
 }

@@ -1,6 +1,11 @@
 package com.leyou.search.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.leyou.common.pojo.PageResult;
 import com.leyou.common.pojo.SearchRequest;
 import com.leyou.item.pojo.*;
@@ -59,7 +64,7 @@ public class SearchService {
 
     private ObjectMapper mapper = new ObjectMapper();
 
-    public Goods buildGoods(Spu spu) throws IOException {
+    public Goods buildGoods(Spu spu) throws Exception {
         Goods goods = new Goods();
 
         // 查询商品分类名称
@@ -85,30 +90,28 @@ public class SearchService {
             skuList.add(skuMap);
         });
 
+        //将商品详情规格属性转为key value形式
+        Map<String, Object> specTempMap = getSpecMap(spuDetail.getSpecifications(), spuDetail.getSpecTemplate());
 
-        // 处理规格参数
-//        Map<String, Object> genericSpecs = mapper.readValue(spuDetail.getGenericSpec(), new TypeReference<Map<String, Object>>() {
-//        });
-//        Map<String, Object> specialSpecs = mapper.readValue(spuDetail.getSpecialSpec(), new TypeReference<Map<String, Object>>() {
-//        });
+
         // 获取可搜索的规格参数
         Map<String, Object> searchSpec = new HashMap<>();
 
         // 过滤规格模板，把所有可搜索的信息保存到Map中
         Map<String, Object> specMap = new HashMap<>();
-//        params.forEach(p -> {
-//            if (p.getSearching()) {
-//                if (p.getGeneric()) {
-//                    String value = genericSpecs.get(p.getCid().toString()).toString();
-//                    if(p.getNumeric()){
-//                        value = chooseSegment(value, p);
-//                    }
-//                    specMap.put(p.getFiledName(), StringUtils.isBlank(value) ? "其它" : value);
-//                } else {
-//                    specMap.put(p.getFiledName(), specialSpecs.get(p.getCid().toString()));
-//                }
-//            }
-//        });
+        params.forEach(p -> {
+            if (p.getSearching()) {
+                if (p.getGeneric()) {
+                    String value = (String) specTempMap.get(p.getFiledName());
+                    if(p.getNumeric() != null && p.getNumeric()){
+                        value = chooseSegment(value, p);
+                    }
+                    specMap.put(p.getFiledName(), StringUtils.isBlank(value) ? "其它" : value);
+                } else {
+                    specMap.put(p.getFiledName(), specTempMap.get(p.getFiledName()));
+                }
+            }
+        });
 
         goods.setId(spu.getId());
         goods.setSubTitle(spu.getSubTitle());
@@ -124,9 +127,55 @@ public class SearchService {
         return goods;
     }
 
+    private Map<String, Object> getSpecMap(String specifications, String specTemplate) throws Exception{
+        Map<String, Object> specsMap = mapper.readValue(specTemplate, new TypeReference<Map<String, Object>>() {});
+        new JsonParser().parse(specifications).getAsJsonArray().forEach(arr -> {
+            arr.getAsJsonObject().get("params").getAsJsonArray().forEach(arr2 -> {
+                JsonObject jsonObject = arr2.getAsJsonObject();
+                boolean global = jsonObject.get("global").getAsBoolean();
+                if(global){
+                    String val = jsonObject.get("v").toString();
+                    val = val.equals("null")?null:jsonObject.get("v").getAsString();
+                    specsMap.put(jsonObject.get("k").getAsString(), val);
+                }
+            });
+        });
+        return specsMap;
+    }
+
+    public static void main(String[] args) {
+        String tstr = "5.0";
+        System.out.println(NumberUtils.toDouble(tstr));
+    }
+
     private String chooseSegment(String value, SpecParam p) {
         double val = NumberUtils.toDouble(value);
         String result = "其它";
+        String options = p.getOptions();
+        JsonArray jsonArray =  new JsonParser().parse(options).getAsJsonArray();
+        if(jsonArray.size() > 0){
+            for(JsonElement arr : jsonArray){
+                String segment = arr.getAsString();
+                String[] segs = segment.split("-");
+                // 获取数值范围
+                double begin = NumberUtils.toDouble(segs[0]);
+                double end = Double.MAX_VALUE;
+                if(segs.length == 2){
+                    end = NumberUtils.toDouble(segs[1]);
+                }
+                // 判断是否在范围内
+                if(val >= begin && val < end){
+                    if(segs.length == 1){
+                        result = segs[0] + p.getUnit() + "以上";
+                    }else if(begin == 0){
+                        result = segs[1] + p.getUnit() + "以下";
+                    }else{
+                        result = segment + p.getUnit();
+                    }
+                    break;
+                }
+            }
+        }
         // 保存数值段
 //        for (String segment : p.getSegments().split(",")) {
 //            String[] segs = segment.split("-");
