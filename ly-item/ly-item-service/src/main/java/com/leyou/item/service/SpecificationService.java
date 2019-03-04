@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.leyou.item.mapper.SpecificationMapper;
 import com.leyou.item.pojo.Specification;
+import com.leyou.item.vo.SpecGroup;
 import com.leyou.item.vo.SpecParam;
 import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +72,24 @@ public class SpecificationService<main> {
         }
         return specParam;
     }
+
+    public List<SpecGroup> querySpecsByCid(Long cid) {
+        Specification specification = specificationMapper.selectByPrimaryKey(cid);
+        // 查询规格组
+        List<SpecGroup> groups = new ArrayList<>();
+
+        new JsonParser().parse(specification.getSpecifications()).getAsJsonArray().forEach(arr -> {
+            String groupName = arr.getAsJsonObject().get("group").getAsString();
+        });
+
+        SpecParam param = new SpecParam();
+        groups.forEach(g -> {
+            // 查询组内参数
+            g.setParams(this.querySpecParams(g.getId(), null, null, null));
+        });
+        return groups;
+    }
+
 
     public static void main(String[] args) {
         String options = "{\"options\":[\"10-20\",\"21-30\"]}";

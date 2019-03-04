@@ -4,6 +4,7 @@ import com.leyou.common.pojo.PageResult;
 import com.leyou.item.pojo.Sku;
 import com.leyou.item.pojo.SpuBo;
 import com.leyou.item.pojo.SpuDetail;
+import com.leyou.item.vo.SpecGroup;
 import com.leyou.item.vo.SpecParam;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,4 +23,9 @@ public interface SpecificationApi {
             @RequestParam(value="searching", required = false) Boolean searching,
             @RequestParam(value="generic", required = false) Boolean generic
     );
+
+    // 查询规格参数组，及组内参数
+    @GetMapping("{cid}")
+    List<SpecGroup> querySpecsByCid(@PathVariable("cid") Long cid);
+
 }

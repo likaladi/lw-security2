@@ -120,7 +120,8 @@ public class SearchService {
         goods.setCid2(spu.getCid2());
         goods.setCid3(spu.getCid3());
         goods.setCreateTime(spu.getCreateTime());
-        goods.setAll(spu.getTitle() + " " + StringUtils.join(names, " "));
+        //goods.setAll(spu.getTitle() + " " + StringUtils.join(names, " "));
+        goods.setAll(spu.getTitle());
         goods.setPrice(prices);
         goods.setSkus(mapper.writeValueAsString(skuList));
         goods.setSpecs(specMap);
@@ -164,7 +165,7 @@ public class SearchService {
                     end = NumberUtils.toDouble(segs[1]);
                 }
                 // 判断是否在范围内
-                if(val >= begin && val < end){
+                if(val >= begin && val <= end){
                     if(segs.length == 1){
                         result = segs[0] + p.getUnit() + "以上";
                     }else if(begin == 0){
@@ -248,8 +249,8 @@ public class SearchService {
         // 1、构建查询条件
         NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
 
-        MatchQueryBuilder basicQuery = QueryBuilders.matchQuery("all",  request.getKey()).operator(Operator.AND);
-        //QueryBuilder basicQuery = buildBasicQueryWithFilter(request);
+        //MatchQueryBuilder basicQuery = QueryBuilders.matchQuery("all",  request.getKey()).operator(Operator.AND);
+        QueryBuilder basicQuery = buildBasicQueryWithFilter(request);
 
         // 1.1、基本查询
         queryBuilder.withQuery(basicQuery);
@@ -293,22 +294,26 @@ public class SearchService {
         BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
         // 基本查询条件
         queryBuilder.must(QueryBuilders.matchQuery("all", request.getKey()).operator(Operator.AND));
-        // 过滤条件构建器
-        BoolQueryBuilder filterQueryBuilder = QueryBuilders.boolQuery();
+
         // 整理过滤条件
         Map<String, String> filter = request.getFilter();
-        for (Map.Entry<String, String> entry : filter.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            // 商品分类和品牌要特殊处理
-            if (key != "cid3" && key != "brandId") {
-                key = "specs." + key + ".keyword";
+        if(filter != null){
+            // 过滤条件构建器
+            BoolQueryBuilder filterQueryBuilder = QueryBuilders.boolQuery();
+
+            for (Map.Entry<String, String> entry : filter.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                // 商品分类和品牌要特殊处理
+                if (key != "cid3" && key != "brandId") {
+                    key = "specs." + key + ".keyword";
+                }
+                // 字符串类型，进行term查询
+                filterQueryBuilder.must(QueryBuilders.termQuery(key, value));
             }
-            // 字符串类型，进行term查询
-            filterQueryBuilder.must(QueryBuilders.termQuery(key, value));
+            // 添加过滤条件
+            queryBuilder.filter(filterQueryBuilder);
         }
-        // 添加过滤条件
-        queryBuilder.filter(filterQueryBuilder);
         return queryBuilder;
     }
 
