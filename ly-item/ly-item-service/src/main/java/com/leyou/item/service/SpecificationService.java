@@ -80,12 +80,26 @@ public class SpecificationService<main> {
 
         new JsonParser().parse(specification.getSpecifications()).getAsJsonArray().forEach(arr -> {
             String groupName = arr.getAsJsonObject().get("group").getAsString();
+            SpecGroup specGroup = new SpecGroup();
+            specGroup.setCid(cid);
+            specGroup.setName(groupName);
+            groups.add(specGroup);
         });
 
-        SpecParam param = new SpecParam();
         groups.forEach(g -> {
-            // 查询组内参数
-            g.setParams(this.querySpecParams(g.getId(), null, null, null));
+            new JsonParser().parse(specification.getSpecifications()).getAsJsonArray().forEach(arr -> {
+                String groupName = arr.getAsJsonObject().get("group").getAsString();
+                if(g.getName().equals(groupName)){
+                    List<SpecParam> datas = new ArrayList<>();
+                    arr.getAsJsonObject().get("params").getAsJsonArray().forEach(arr2 -> {
+                        JsonObject jsonObject = arr2.getAsJsonObject();
+                        boolean searchable = jsonObject.get("searchable").getAsBoolean();
+                        boolean global = jsonObject.get("global").getAsBoolean();
+                        datas.add(getSpecParam(cid,searchable,global,jsonObject));
+                    });
+                    g.setParams(datas);
+                }
+            });
         });
         return groups;
     }
