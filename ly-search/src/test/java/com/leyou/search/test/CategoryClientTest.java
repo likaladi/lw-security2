@@ -22,11 +22,9 @@ public class CategoryClientTest {
     @Test
     public void testQueryCategories() {
 
-        ResponseEntity<List<String>> datas = this.categoryClient.queryNameByIds(Arrays.asList(1l,2l,3l));
+        List<String> datas = this.categoryClient.queryNameByIds(Arrays.asList(1l,2l,3l));
 
-        List<String> list = datas.getBody();
-
-        list.forEach(System.out::println);
+        datas.forEach(System.out::println);
 
     }
 }

@@ -68,7 +68,7 @@ public class SearchService {
         Goods goods = new Goods();
 
         // 查询商品分类名称
-        List<String> names = this.categoryClient.queryNameByIds(Arrays.asList(spu.getCid1(), spu.getCid2(), spu.getCid3())).getBody();
+        List<String> names = this.categoryClient.queryNameByIds(Arrays.asList(spu.getCid1(), spu.getCid2(), spu.getCid3()));
 
         // 查询sku
         List<Sku> skus = this.goodsClient.querySkuBySpuId(spu.getId());
@@ -391,7 +391,7 @@ public class SearchService {
                 cids.add(bucket.getKeyAsNumber().longValue());
             }
             // 根据id查询分类名称
-            List<String> names = this.categoryClient.queryNameByIds(cids).getBody();
+            List<String> names = this.categoryClient.queryNameByIds(cids);
 
             for (int i = 0; i < names.size(); i++) {
                 Category c = new Category();

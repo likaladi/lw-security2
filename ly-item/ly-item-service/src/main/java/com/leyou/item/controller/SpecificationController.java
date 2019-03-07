@@ -18,15 +18,6 @@ public class SpecificationController {
     @Autowired
     private SpecificationService specificationService;
 
-    @GetMapping("{id}")
-    public ResponseEntity<String> querySpecificationByCategoryId(@PathVariable("id") Long id){
-        Specification spec = this.specificationService.queryById(id);
-        if (spec == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return ResponseEntity.ok(spec.getSpecifications());
-    }
-
     @GetMapping("/params")
     public ResponseEntity<List<SpecParam>> querySpecParam(
             @RequestParam(value="gid", required = false) Long gid,

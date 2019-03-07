@@ -1,6 +1,8 @@
 server:
   port: 8084
 spring:
+  main:
+    allow-bean-definition-overriding: true #多个接口上的@FeignClient(“相同服务名”)会报错，overriding is disabled
   application:
     name: goods-page
   thymeleaf:

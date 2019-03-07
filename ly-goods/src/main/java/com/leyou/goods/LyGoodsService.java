@@ -8,8 +8,8 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableFeignClients
-public class LyGoodsWebApplication {
+public class LyGoodsService {
     public static void main(String[] args) {
-        SpringApplication.run(LyGoodsWebApplication.class, args);
+        SpringApplication.run(LyGoodsService.class, args);
     }
 }
