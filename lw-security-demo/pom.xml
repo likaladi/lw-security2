@@ -10,11 +10,11 @@
 	</parent>
 
 	<dependencies>
-		<!--<dependency>-->
-			<!--<groupId>com.lw.security</groupId>-->
-			<!--<artifactId>lw-security-browser</artifactId>-->
-			<!--<version>${lw.security.version}</version>-->
-		<!--</dependency>-->
+		<dependency>
+			<groupId>com.lw.security</groupId>
+			<artifactId>lw-security-browser</artifactId>
+			<version>${lw.security.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -24,6 +24,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-aop</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-commons</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
@@ -42,6 +48,12 @@
 			<groupId>com.github.tomakehurst</groupId>
 			<artifactId>wiremock</artifactId>
 			<version>2.5.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 
