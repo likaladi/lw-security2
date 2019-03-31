@@ -1,11 +1,12 @@
 /**
  * 
  */
-package com.lw.entity;
+package com.lw.web.entity;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Past;
 import java.util.Date;
 
@@ -29,6 +30,7 @@ public class User {
 	@JsonView(UserSimpleView.class)
 	private String username;
 
+	@NotBlank(message = "密码不能为空")
 	@JsonView(UserDetailView.class)
 	private String password;
 

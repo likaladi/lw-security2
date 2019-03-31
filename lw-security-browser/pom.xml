@@ -15,6 +15,12 @@
 			<version>${lw.security.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
 		<!--<dependency>-->
 			<!--<groupId>org.springframework.session</groupId>-->
 			<!--<artifactId>spring-session-data-redis</artifactId>-->

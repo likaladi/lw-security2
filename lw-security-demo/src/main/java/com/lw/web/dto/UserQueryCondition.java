@@ -1,9 +1,8 @@
 /**
  * 
  */
-package com.lw.dto;
+package com.lw.web.dto;
 
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**

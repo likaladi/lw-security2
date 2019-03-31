@@ -1,19 +1,19 @@
 /**
  * 
  */
-package com.lw.controller;
+package com.lw.web.controller;
 
 
 import com.fasterxml.jackson.annotation.JsonView;
-import com.lw.dto.UserQueryCondition;
-import com.lw.entity.User;
+import com.lw.web.dto.UserQueryCondition;
+import com.lw.web.entity.User;
+import com.lw.web.error.UserNotExistException;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -72,13 +72,15 @@ public class UserController {
 		return user;
 	}
 
-		@PostMapping
-		@ApiOperation(value = "创建用户")
-		public User create(@Valid @RequestBody User user, BindingResult errors) {
 
-		   if(errors.hasErrors()){
-		   	   errors.getAllErrors().stream().forEach(error -> System.out.println(error.getDefaultMessage()));
-		   }
+	/**
+	 * 参数加上@RequestBody注解表示前端必须以json格式传递参数
+	 * @param user
+	 * @return
+	 */
+	@PostMapping
+		@ApiOperation(value = "创建用户")
+		public User create(@Valid @RequestBody User user) {
 
 			System.out.println(user.getUsername());
 			System.out.println(user.getPassword());
@@ -94,5 +96,20 @@ public class UserController {
 		Date date = sdf.parse("1989-04-07 00:00:00");
 		System.out.println(date.getTime());
 		System.out.println(new Date().getTime());
+	}
+
+	@PutMapping("/{id:\\d+}")
+	public User update(@Valid @RequestBody User user) {
+
+		System.out.println(user.getUsername());
+		System.out.println(user.getPassword());
+		System.out.println(user.getBirthday());
+
+		return user;
+	}
+
+	@DeleteMapping("/{id:\\d+}")
+	public void delete(@PathVariable String id) {
+//		throw new UserNotExistException("xxx");
 	}
 }
