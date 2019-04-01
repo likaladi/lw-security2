@@ -10,11 +10,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+
+import javax.sql.DataSource;
 
 /**
  * 配置security
@@ -25,11 +30,21 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private SecurityProperties securityProperties;
 
+	//注入实现该接口的对象，这里是LwAuthenticationSuccessHandler
 	@Autowired
 	private AuthenticationSuccessHandler authenticationSuccessHandler;
 
+	//注入实现该接口的对象，这里是LwAuthenctiationFailureHandler
 	@Autowired
 	private AuthenticationFailureHandler authenticationFailureHandler;
+
+	//注入数据库数据源
+	@Autowired
+	private DataSource dataSource;
+
+	//注入实现该接口的对象，这里是MyUserDetailsService
+	@Autowired
+	private UserDetailsService userDetailsService;
 
 	/**
 	 * 注入密码加密
@@ -38,6 +53,16 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Bean
 	public PasswordEncoder passwordEncoder(){
 		return new BCryptPasswordEncoder();
+	}
+
+	//初始化存储token的数据表
+	@Bean
+	public PersistentTokenRepository persistentTokenRepository(){
+		JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
+		tokenRepository.setDataSource(dataSource);
+		//启动时创建表
+		//tokenRepository.setCreateTableOnStartup(true);
+		return tokenRepository;
 	}
 
 	@Override
@@ -59,6 +84,14 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
 				.loginProcessingUrl("/authentication/form") //指定登录的接口使用Security内部的用户名密码过滤器处理
 				.successHandler(authenticationSuccessHandler) //登陆成功处理LwAuthenticationSuccessHandler
 				.failureHandler(authenticationFailureHandler) //登陆失败处理LwAuthenctiationFailureHandler
+				.and()
+				//这里是"记住我"的功能
+				.rememberMe()
+				.tokenRepository(persistentTokenRepository())
+				//设置token有效时间
+				.tokenValiditySeconds(securityProperties.getBrowser().getRememberMeSeconds())
+				.userDetailsService(userDetailsService)
+				//"记住我"功能配置结束
 				.and()
 				.authorizeRequests()
 				//开放/authentication/require接口和demo-signIn.html页面及验证码接口，不进行拦截
