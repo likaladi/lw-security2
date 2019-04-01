@@ -10,6 +10,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+/**
+ * 登陆处理
+ */
 @Slf4j
 @Component
 public class MyUserDetailsService implements UserDetailsService {

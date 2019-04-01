@@ -12,6 +12,7 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author zhailiang
@@ -33,7 +34,13 @@ public class TimeFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
+		HttpServletRequest req = (HttpServletRequest) request;
+
+		System.out.println("requestURI: "+req.getRequestURI());
+
+		System.out.println("method: "+req.getMethod());
 		System.out.println("time filter start");
+		System.out.println();
 		long start = new Date().getTime();
 		chain.doFilter(request, response);
 		System.out.println("time filter 耗时:"+ (new Date().getTime() - start));

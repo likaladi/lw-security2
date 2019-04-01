@@ -6,3 +6,13 @@ spring:
     url: jdbc:mysql://127.0.0.1:3306/imooc-demo?useUnicode=yes&characterEncoding=UTF-8&useSSL=false
     username: root
     password: likaladi
+
+lw:
+  security:
+    browser:
+      loginPage: /lw-signIn.html
+    code:
+      image:
+        width: 100
+        height: 23
+        url: /user,/user/*
