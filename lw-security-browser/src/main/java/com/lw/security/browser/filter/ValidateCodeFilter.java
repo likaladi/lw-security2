@@ -3,7 +3,7 @@
  */
 package com.lw.security.browser.filter;
 
-import com.lw.security.browser.controller.ValidateCodeController;
+import com.lw.security.browser.controller.ImageCodeController;
 import com.lw.security.browser.exception.ValidateCodeException;
 import com.lw.security.core.code.image.ImageCode;
 import com.lw.security.core.config.SecurityProperties;
@@ -113,7 +113,7 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
 	}
 
 	private void validate(ServletWebRequest request) throws ServletRequestBindingException{
-		ImageCode imageCode = (ImageCode) sessionStrategy.getAttribute(request, ValidateCodeController.SESSION_KEY);
+		ImageCode imageCode = (ImageCode) sessionStrategy.getAttribute(request, ImageCodeController.SESSION_KEY);
 
 		String codeInRequest = ServletRequestUtils.getStringParameter(request.getRequest(), "imageCode");
 
@@ -126,7 +126,7 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
 		}
 
 		if(imageCode.isExpried()){
-			sessionStrategy.removeAttribute(request, ValidateCodeController.SESSION_KEY);
+			sessionStrategy.removeAttribute(request, ImageCodeController.SESSION_KEY);
 			throw new ValidateCodeException("验证码已过期");
 		}
 
@@ -134,7 +134,7 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
 			throw new ValidateCodeException("验证码不匹配");
 		}
 
-		sessionStrategy.removeAttribute(request, ValidateCodeController.SESSION_KEY);
+		sessionStrategy.removeAttribute(request, ImageCodeController.SESSION_KEY);
 	}
 
 }

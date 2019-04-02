@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  */
 @RestController
-public class ValidateCodeController {
+public class ImageCodeController {
 
 	public static final String SESSION_KEY = "SESSION_KEY_IMAGE_CODE";
 
