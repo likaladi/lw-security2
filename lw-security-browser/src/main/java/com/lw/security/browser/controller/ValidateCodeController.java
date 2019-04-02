@@ -3,7 +3,7 @@
  */
 package com.lw.security.browser.controller;
 
-import com.lw.security.core.code.ValidateCodeGenerator;
+import com.lw.security.core.code.common.BaseCodeService;
 import com.lw.security.core.code.image.ImageCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.social.connect.web.HttpSessionSessionStrategy;
@@ -30,7 +30,7 @@ public class ValidateCodeController {
 	private SessionStrategy sessionStrategy = new HttpSessionSessionStrategy();
 
 	@Autowired
-	private ValidateCodeGenerator imageCodeGenerator;
+	private BaseCodeService imageCodeService;
 
 	/**
 	 * 创建验证码
@@ -41,7 +41,7 @@ public class ValidateCodeController {
 	@GetMapping("/code/image")
 	public void createCode(HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
-		ImageCode imageCode = imageCodeGenerator.generate(new ServletWebRequest(request));
+		ImageCode imageCode = (ImageCode)imageCodeService.generate(new ServletWebRequest(request));
 		//设置图形验证码到session
 		sessionStrategy.setAttribute(new ServletWebRequest(request), SESSION_KEY, imageCode);
 		ImageIO.write(imageCode.getImage(), "JPEG", response.getOutputStream());

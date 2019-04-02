@@ -58,6 +58,7 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
 	//初始化存储token的数据表
 	@Bean
 	public PersistentTokenRepository persistentTokenRepository(){
+		//从JdbcTokenRepositoryImpl源码中拷贝创建表persistent_logins语句在数据库中执行
 		JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
 		tokenRepository.setDataSource(dataSource);
 		//启动时创建表
@@ -77,6 +78,7 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
 		//开放拦截自定义页面
 		String loginPage = securityProperties.getBrowser().getLoginPage();
 //		http.httpBasic() //httpBasic 浏览器与服务器做认证授权
+
 		//将自定义验证码filter加在用户名密码过滤器之前
 		http.addFilterBefore(validateCodeFilter, UsernamePasswordAuthenticationFilter.class)
 				.formLogin() //使用fromLogin 表单提交认证模式
