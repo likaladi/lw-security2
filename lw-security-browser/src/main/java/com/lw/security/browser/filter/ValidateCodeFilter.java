@@ -3,17 +3,21 @@
  */
 package com.lw.security.browser.filter;
 
-import com.lw.security.browser.controller.ImageCodeController;
+import com.lw.security.browser.controller.ValidateCodeController;
 import com.lw.security.browser.exception.ValidateCodeException;
 import com.lw.security.core.code.image.ImageCode;
+import com.lw.security.core.code.sms.ValidateCode;
 import com.lw.security.core.config.SecurityProperties;
+import com.lw.security.core.properties.SecurityConstants;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.social.connect.web.HttpSessionSessionStrategy;
 import org.springframework.social.connect.web.SessionStrategy;
+import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -30,19 +34,18 @@ import java.util.Set;
 
 
 /**
- * @author zhailiang
+ * 验证码过滤器,可以注入
  *
  */
 @Slf4j
-@Data
+@Component
 public class ValidateCodeFilter extends OncePerRequestFilter implements InitializingBean {
 
 	/**
 	 * 验证码校验失败处理器
 	 */
+	@Autowired
 	private AuthenticationFailureHandler authenticationFailureHandler;
-
-	private SecurityProperties securityProperties;
 
 	private AntPathMatcher pathMatcher = new AntPathMatcher();
 
@@ -59,14 +62,16 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
 	public void afterPropertiesSet() throws ServletException {
 		log.info("-----执行ValidateCodeFilter的afterPropertiesSet方法---------");
 		super.afterPropertiesSet();
-		String imgUrls = securityProperties.getCode().getImage().getUrl();
-		if(StringUtils.isNotBlank(imgUrls)){
-			String[] configUrls = StringUtils.splitByWholeSeparatorPreserveAllTokens(imgUrls, ",");
-			for (String configUrl : configUrls){
-				urls.add(configUrl);
-			}
-		}
-		urls.add("/authentication/form");
+//		String imgUrls = securityProperties.getCode().getImage().getUrl();
+//		if(StringUtils.isNotBlank(imgUrls)){
+//			String[] configUrls = StringUtils.splitByWholeSeparatorPreserveAllTokens(imgUrls, ",");
+//			for (String configUrl : configUrls){
+//				urls.add(configUrl);
+//			}
+//		}
+		urls.add(SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_MOBILE);
+		urls.add(SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_FORM);
+
 	}
 
 
@@ -96,45 +101,45 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
 			}
 		}
 
-		//访问地址：http://localhost:8060/authentication/require，requestURI:/authentication/require
-		//获取请求的方式:req.getMethod() 返回GET/POST
-//		if(StringUtils.equals("/authentication/form", request.getRequestURI())
-//				&& StringUtils.equalsIgnoreCase(request.getMethod(), "post")){
-//			try{
-//				validate(new ServletWebRequest(request));
-//			}catch (ValidateCodeException e){
-//				authenticationFailureHandler.onAuthenticationFailure(request, response, e);
-//				return;
-//			}
-//		}
-
 		chain.doFilter(request, response);
 
 	}
 
 	private void validate(ServletWebRequest request) throws ServletRequestBindingException{
-		ImageCode imageCode = (ImageCode) sessionStrategy.getAttribute(request, ImageCodeController.SESSION_KEY);
 
-		String codeInRequest = ServletRequestUtils.getStringParameter(request.getRequest(), "imageCode");
+		ValidateCode validateCode = null;
+		String sessionKey = null;
+		String codeInRequest = null;
+		if(request.getRequest().getRequestURI().equals(SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_FORM)){
+			sessionKey = SecurityConstants.SESSION_KEY_IMAGE_CODE;
+			validateCode = (ValidateCode)sessionStrategy.getAttribute(request, SecurityConstants.SESSION_KEY_IMAGE_CODE);
+			codeInRequest = ServletRequestUtils.getStringParameter(request.getRequest(), "imageCode");
+		}
+		if(request.getRequest().getRequestURI().equals(SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_MOBILE)){
+			sessionKey = SecurityConstants.SESSION_KEY_SMS_CODE;
+			validateCode = (ValidateCode)sessionStrategy.getAttribute(request, SecurityConstants.SESSION_KEY_SMS_CODE);
+			codeInRequest = ServletRequestUtils.getStringParameter(request.getRequest(), "smsCode");
+		}
 
 		if(StringUtils.isBlank(codeInRequest)){
 			throw  new ValidateCodeException("验证码的值不能为空");
 		}
 
-		if(imageCode == null){
+		if(validateCode == null){
 			throw new ValidateCodeException("验证码不存在");
 		}
 
-		if(imageCode.isExpried()){
-			sessionStrategy.removeAttribute(request, ImageCodeController.SESSION_KEY);
+		if(validateCode.isExpried()){
+			sessionStrategy.removeAttribute(request, sessionKey);
 			throw new ValidateCodeException("验证码已过期");
 		}
 
-		if(!StringUtils.equals(imageCode.getCode(), codeInRequest)){
+		if(!StringUtils.equals(validateCode.getCode(), codeInRequest)){
 			throw new ValidateCodeException("验证码不匹配");
 		}
 
-		sessionStrategy.removeAttribute(request, ImageCodeController.SESSION_KEY);
+		//验证成功后，删除session存储的验证码
+		sessionStrategy.removeAttribute(request, sessionKey);
 	}
 
 }

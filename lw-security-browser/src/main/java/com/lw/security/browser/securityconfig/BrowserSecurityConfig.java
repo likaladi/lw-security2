@@ -4,7 +4,9 @@
 package com.lw.security.browser.securityconfig;
 
 import com.lw.security.browser.filter.ValidateCodeFilter;
+import com.lw.security.core.authentication.mobile.SmsCodeAuthenticationSecurityConfig;
 import com.lw.security.core.config.SecurityProperties;
+import com.lw.security.core.properties.SecurityConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -46,6 +49,12 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private UserDetailsService userDetailsService;
 
+	@Autowired
+	private SmsCodeAuthenticationSecurityConfig smsCodeAuthenticationSecurityConfig;
+
+	@Autowired
+	private ValidateCodeFilter validateCodeFilter;
+
 	/**
 	 * 注入密码加密
 	 * @return
@@ -69,14 +78,7 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 
-		//自定义验证码filter
-		ValidateCodeFilter validateCodeFilter = new ValidateCodeFilter();
-		validateCodeFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
-		validateCodeFilter.setSecurityProperties(securityProperties);
-		validateCodeFilter.afterPropertiesSet();
 
-		//开放拦截自定义页面
-		String loginPage = securityProperties.getBrowser().getLoginPage();
 //		http.httpBasic() //httpBasic 浏览器与服务器做认证授权
 
 		//将自定义验证码filter加在用户名密码过滤器之前
@@ -97,12 +99,16 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
 				.and()
 				.authorizeRequests()
 				//开放/authentication/require接口和demo-signIn.html页面及验证码接口，不进行拦截
-				.antMatchers("/authentication/require", loginPage,"/code/image").permitAll()
+				.antMatchers(SecurityConstants.DEFAULT_UNAUTHENTICATION_URL,
+						SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_MOBILE,
+						securityProperties.getBrowser().getLoginPage(),
+						SecurityConstants.DEFAULT_VALIDATE_CODE_URL_PREFIX+"/*").permitAll()
 				//.anyRequest().authenticated()表示其他的所有请求都必须认证
 				.anyRequest()
 				.authenticated()
 				.and()
-				.csrf().disable(); //禁用csrf
+				.csrf().disable() //禁用csrf
+		.apply(smsCodeAuthenticationSecurityConfig); //将自定义手机登录过滤器注入到springSecurity验证
 	}
 	
 }

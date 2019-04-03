@@ -3,8 +3,6 @@
  */
 package com.lw.security.core.code.sms;
 
-import com.lw.security.core.code.common.BaseCode;
-import com.lw.security.core.code.common.BaseCodeService;
 import com.lw.security.core.config.SecurityProperties;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +13,7 @@ import org.springframework.web.context.request.ServletWebRequest;
  *  生成短信验证码
  */
 @Component
-public class SmsCodeServiceImpl implements BaseCodeService {
+public class SmsCodeService {
 
 	/**
 	 * 系统配置
@@ -23,10 +21,18 @@ public class SmsCodeServiceImpl implements BaseCodeService {
 	@Autowired
 	private SecurityProperties securityProperties;
 
-	@Override
-	public BaseCode generate(ServletWebRequest request) {
+	public ValidateCode generate(ServletWebRequest request) {
 		String code = RandomStringUtils.randomNumeric(securityProperties.getCode().getSms().getLength());
-		return new SmsCode(code, securityProperties.getCode().getSms().getExpireIn());
+		return new ValidateCode(code, securityProperties.getCode().getSms().getExpireIn());
+	}
+
+	/**
+	 * 发送手机验证码，待实现
+	 * @param mobile
+	 * @param code
+	 */
+	public void send(String mobile, String code){
+		System.out.println("手机号："+mobile+"接收验证码："+code);
 	}
 
 }

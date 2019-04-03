@@ -3,8 +3,7 @@
  */
 package com.lw.security.core.code.image;
 
-import com.lw.security.core.code.common.BaseCode;
-import com.lw.security.core.code.common.BaseCodeService;
+import com.lw.security.core.code.sms.ValidateCode;
 import com.lw.security.core.config.SecurityProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,7 +18,7 @@ import java.util.Random;
  *  生成图像验证码
  */
 @Component
-public class ImageCodeServiceImpl implements BaseCodeService {
+public class ImageCodeService {
 
 	/**
 	 * 系统配置
@@ -27,8 +26,7 @@ public class ImageCodeServiceImpl implements BaseCodeService {
 	@Autowired
 	private SecurityProperties securityProperties;
 
-	@Override
-	public BaseCode generate(ServletWebRequest request) {
+	public ValidateCode generate(ServletWebRequest request) {
 		int width = ServletRequestUtils.getIntParameter(request.getRequest(), "width",
 				securityProperties.getCode().getImage().getWidth());
 		int height = ServletRequestUtils.getIntParameter(request.getRequest(), "height",
